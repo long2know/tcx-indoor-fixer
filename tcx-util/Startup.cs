@@ -7,6 +7,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using tcx_util.Utilities;
+using tcx_util.Utilities.Interfaces;
+using tcx_util.Utilities.Services;
 
 namespace tcx_util
 {
@@ -47,6 +50,22 @@ namespace tcx_util
 			// Build the our IServiceProvider and set our static reference to it
 			ServiceProviderFactory.ServiceProvider = serviceCollection.BuildServiceProvider();
 
+			var gpsService = ServiceProviderFactory.ServiceProvider.GetService<IGpsService>();
+
+			// Roughly 1.6km
+			var start = new Coordinates() { Latitude = 47.6624556, Longitude = -122.1214378 }; // Marymoor Park Office
+			var end = new Coordinates() { Latitude = 47.676215, Longitude = -122.1279931 }; // Trader Joe's
+			var distance = gpsService.CalculateDistance(start, end, false);
+
+			// Roughly 2.5km
+			var coordinates = new List<Coordinates>()
+			{
+				new Coordinates() { Latitude = 47.6624556, Longitude = -122.1214378 }, // Marymoor Park Office
+				new Coordinates() { Latitude = 47.676215, Longitude = -122.1279931 }, // Trader Joe's
+				new Coordinates() { Latitude = 47.6687904, Longitude = -122.1198875 } // BJ's restaurant
+			};
+			distance = gpsService.CalculateDistance(coordinates, false);
+
 			// Enter the applicaiton.. (run!)
 			ServiceProviderFactory.ServiceProvider.GetService<Application>().Run(args);
 		}
@@ -65,6 +84,7 @@ namespace tcx_util
 			//services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			//services.AddTransient<IViewRenderService, ViewRenderService>();
 			//services.AddTransient<ICurrentUserService, CurrentUserService>();
+			services.AddSingleton<IGpsService, GpsService>();
 
 			var appConnStr = RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? "WindowsConnStr" : "LinuxConnStr";
 			//services.AddDbContext<MyDbContext>(options =>

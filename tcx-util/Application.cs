@@ -3,11 +3,19 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Xml.Linq;
+using tcx_util.Utilities.Interfaces;
 
 namespace tcx_util
 {
 	public class Application
 	{
+		private IGpsService _gpsSvc;
+
+		public Application(IGpsService gpsService)
+		{
+			_gpsSvc = gpsService;
+		}
+
 		public void Run(string[] args)
 		{
 			var distance = 0.0m;
@@ -64,6 +72,7 @@ namespace tcx_util
 			if (string.IsNullOrWhiteSpace(inFileName))
 			{
 				Console.WriteLine("No input file specified.");
+				return;
 			}
 
 			var fileStream = new FileStream(inFileName, FileMode.Open);
@@ -256,6 +265,18 @@ namespace tcx_util
 
 			// Use our other routine to clean up the output, and to avoid duplication of logic.
 			CreateTcxFromTcx(tcxDoc);
+		}
+
+		public static bool IsDebug
+		{
+			get
+			{
+				bool isDebug = false;
+#if DEBUG
+				isDebug = true;
+#endif
+				return isDebug;
+			}
 		}
 	}
 }
