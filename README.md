@@ -6,3 +6,9 @@ This is a pretty simple .NET Core console applications that will take a TCX/GPX 
 The purpose is to allow one to record a GPS-enabled workout, indoors, but then treat it as an indoor workout to retain Heart Rate and other data.
 
 Other inputs to the console application allow specifying total distance and total time.
+
+The sample project includes a few test TCX/GPX files with which to play around.
+
+Typical execution is in the form (where distance is in meters and time is in seconds)
+
+dotnet run tcx-util.csproj --d 10000 --t 3600 --i "C:\tcx-util\test2.tcx"
