@@ -75,11 +75,17 @@ namespace tcx_util
 			// Figure out if the XML is TCX or GPX
 			if (ns.NamespaceName.Contains("http://www.garmin.com/xmlschemas/TrainingCenterDatabase"))
 			{
-				CreateTcxFromTcx(xdoc);
+				CreateTcxFromTcx(xdoc, distance, totalTime);
 			}
 			else if (ns.NamespaceName.Contains("http://www.topografix.com/GPX"))
 			{
-				CreateTcxFromGpx(xdoc);
+				if (distance <= 0)
+				{
+					Console.WriteLine("You must specifiy distance for GPX files.");
+					return;
+				}
+
+				CreateTcxFromGpx(xdoc, distance, totalTime);
 			}
 			else
 			{
@@ -178,7 +184,7 @@ namespace tcx_util
 			xdoc.Save(outWrite);
 		}
 
-		void CreateTcxFromGpx(XDocument xdoc)
+		void CreateTcxFromGpx(XDocument xdoc, decimal distance = 0.0m, decimal totalTime = 0.0m)
 		{
 			XNamespace xmlns = XNamespace.Get("http://www.garmin.com/xmlschemas/TrainingCenterDatabase/v2");
 			XNamespace xsi = XNamespace.Get("http://www.w3.org/2001/XMLSchema-instance");
@@ -199,8 +205,9 @@ namespace tcx_util
 			DateTime.TryParse(lastpt.Descendants(gpxns + "time").First().Value, out DateTime endTime);
 			var totalSeconds = (endTime - startTime).TotalSeconds;
 
-			// Was there a distance, in meters, passed in?
-			var distance = 5000;
+			// Was there a distance, in meters, passed in? GPX, oddly, doesn't have total distance.  We could calculate it, though (https://stackoverflow.com/questions/44222824/how-to-compute-distance-in-a-gpx-file)
+			// but it wouldn't make much sense.
+			// var distance = 5000;
 			var count = trkseg.Descendants(gpxns + "trkpt").Count();
 			count = count <= 0 ? 1 : count;
 			var averageDistance = distance / count;
